@@ -9,7 +9,7 @@ output:
 
 ## R Markdown
 
-#This is an R Markdown document that I, Heather Brooks, have edited from within RStudio and pushed to Github. 
+#This is an R Markdown document that I, Heather Brooks, have edited from within RStudio and pushed to Github. I want to make this look good on Github so I am changing the file format.
 
 Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
