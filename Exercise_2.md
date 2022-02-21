@@ -26,9 +26,8 @@ GetTreeFromOpenTree <- function() {
 	# and return the tree
 	return(songbird.tree)
 }
-
-songbird.tree <- GetTreeFromOpenTree()
 ```
+
 
 ```
 ## Warning: package 'rotl' was built under R version 4.1.2
@@ -64,7 +63,7 @@ songbird.tree <- GetTreeFromOpenTree()
 ## labels: Passer melanurus ott407762
 ```
 
-![](Exercise_2_files/figure-html/unnamed-chunk-1-1.png)<!-- -->
+![](Exercise_2_files/figure-html/songbird.tree-1.png)<!-- -->
 
 
 
