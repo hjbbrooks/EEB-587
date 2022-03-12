@@ -1,0 +1,59 @@
+---
+title: "Trees and Data"
+author: "hjbbrooks"
+date: '2022-03-11'
+output: html_document
+keep_md=TRUE
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Finding trees and data
+I used the tree and data from Luke Harmon's lessons in Github: 
+https://lukejharmon.github.io/pcm/rmarkdown/chapter8_squamatelimbs.html
+
+
+```{r data}
+library(ape)
+library(RCurl)
+sqTree<-read.tree(("https://raw.githubusercontent.com/lukejharmon/pcm/master/datafiles/squamate.phy"))
+sqData<-read.csv(("https://raw.githubusercontent.com/lukejharmon/pcm/master/datafiles/brandley_table.csv"), stringsAsFactors = FALSE)
+```
+
+##Cleaning and visualization
+After looking at the data it looks like the names don't match up yet (missing an underscore in the data).
+
+```{r cleaning, eval = FALSE}
+library(geiger)
+rownames(sqData) <- gsub(" ","_", sqData$Species)
+fings <- (as.integer(sqData$Fingers))
+Newdat <- cbind(sqData,fings)
+cleaned.discrete <- Newdat[, c('Species', 'fings', 'Morph', 'Ecology.1')]
+CleanData <- function(phy, dat) {
+  treedata(phy, dat, sort=TRUE)
+}
+CleanData(sqTree, sqData)
+```
+
+Now things seem to be matched up pretty well (though it had to drop a few species).
+
+Looking at data for errors is more difficult since I'm not familiar with the species that are included. There are a few values in the ecology.1 row that are NA but I don't know what the row is looking at.
+
+```{r visualization}
+View(sqData)
+VisualizeData <- function(phy, data) {
+  plot.phylo(phy,cex = 0.1)
+}
+VisualizeData(sqTree, sqData)
+```
+The tree is hard to read because of how many branches there are. There may be polytomies, but at this size these potential spots could also be a very small edge between the nodes.I think that I will make the assumption that the data is usable.
+
+##Analysis
+``` {r ancestral traits}
+cleaned.discrete.phyDat <- phangorn::phyDat(cleaned.discrete, type="USER", levels = c("NA", "1", "2", "3", "4", "5"))
+anc.p <- phangorn::ancestral.pars(sqTree, cleaned.discrete.phyDat)
+phangorn::plotAnc(sqTree, anc.p, 1)
+```
+
