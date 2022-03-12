@@ -1,8 +1,8 @@
 ---
 title: "Trees and Data"
-author: "hjbbrooks"
-date: '2022-03-11'
-output: github_document
+output: 
+  html_document: 
+    keep_md: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -52,8 +52,8 @@ The tree is hard to read because of how many branches there are. There may be po
 ##Analysis
 ``` {r ancestral traits}
 cleaned.discrete.phyDat <- phangorn::phyDat(cleaned.discrete, type="USER", levels = c("NA", "1", "2", "3", "4", "5"))
-anc.p <- phangorn::ancestral.pars(sqTree, cleaned.discrete.phyDat)
-phangorn::plotAnc(sqTree, anc.p, 1)
+##anc.p <- phangorn::ancestral.pars(sqTree, cleaned.discrete.phyDat)
+##phangorn::plotAnc(sqTree, anc.p, 1)
 ```
 
-I'm getting errors here and I'm not sure where they're coming from or how to fix them. Google says that I'm trying to add something too big to a matrix of a set size, but I'm not entirely sure where to start.
+I'm getting errors in the last line (subscript out of bounds?) and I'm not sure where they're coming from or how to fix them. Google says that I'm trying to add something too big to a matrix of a set size, but I'm not entirely sure where to start.
