@@ -65,9 +65,9 @@ legend("topleft", legend=c("Birth Death", "Yule"), fill=colors)
 
 ```{r parameters}
 my.trees <- TreeSim::sim.bd.taxa(n=300, numbsim=10, lambda=0.2, mu=2, complete=FALSE)
-ape::mltt.plot(my.trees, log="y", legend=FALSE)
+ape:::mltt.plot(my.trees, log="y", legend=FALSE)
 ```
-Annnd getting another error here. It's saying base::try(files, silent = TRUE): object 'files' not found
+It keeps stalling out here and I'm not sure why. I left it running overnight and it still hasn't finished...
 
 ```{r hisse}
 speciation.rates <- c(0.1, 0.1, 0.1, 0.2) #0A, 1A, 0B, 1B
@@ -94,7 +94,7 @@ turnover.anc = c(1,2,3,4)
 eps.anc = c(0,0,0,0)
 ```
 
-``` {transition rate matrix}
+``` {r transition rate matrix}
 trans.rates = TransMatMaker.old(hidden.states=TRUE)
 trans.rates
 
