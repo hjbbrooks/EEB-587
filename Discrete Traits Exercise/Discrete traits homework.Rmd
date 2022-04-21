@@ -2,11 +2,11 @@
 title: "Trees and Data"
 output: 
   html_document: 
-    keep_md: yes
+    keep_md: no
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, cache=FALSE)
 ```
 
 ##Finding trees and data
@@ -14,46 +14,102 @@ I used the tree and data from Luke Harmon's lessons in Github:
 https://lukejharmon.github.io/pcm/rmarkdown/chapter8_squamatelimbs.html
 
 
-```{r data}
+```{r data, eval=TRUE}
 library(ape)
 library(RCurl)
+library(phangorn)
 sqTree<-read.tree(("https://raw.githubusercontent.com/lukejharmon/pcm/master/datafiles/squamate.phy"))
 sqData<-read.csv(("https://raw.githubusercontent.com/lukejharmon/pcm/master/datafiles/brandley_table.csv"), stringsAsFactors = FALSE)
+print(head(sqData))
 ```
 
 ##Cleaning and visualization
 After looking at the data it looks like the names don't match up yet (missing an underscore in the data).
 
-```{r cleaning, eval = FALSE}
+```{r cleaning, eval=TRUE}
 library(geiger)
 rownames(sqData) <- gsub(" ","_", sqData$Species)
 fings <- (as.integer(sqData$Fingers))
 Newdat <- cbind(sqData,fings)
 cleaned.discrete <- Newdat[, c('Species', 'fings', 'Morph', 'Ecology.1')]
+
+
 CleanData <- function(phy, dat) {
+  for (colindex in sequence(ncol(dat))) {
+    dat <- dat[!is.na(dat[,colindex]),]
+  }
+  rownames(dat) <- gsub(" ", "-", gsub("_", "-", rownames(dat)))
+  phy$tip.label <- gsub(" ", "-", gsub("_", "-",phy$tip.label))
+
   treedata(phy, dat, sort=TRUE)
 }
-CleanData(sqTree, sqData)
+really.cleaned.result <- CleanData(sqTree, cleaned.discrete)
+really.cleaned.data <- really.cleaned.result$data
+really.cleaned.data <- as.data.frame(really.cleaned.data)
+really.cleaned.data$fings <- as.numeric(really.cleaned.data$fings)
+really.cleaned.data$Morph <- as.numeric(really.cleaned.data$Morph)
+really.cleaned.data$Ecology.1 <- as.numeric(really.cleaned.data$Ecology.1)
+rownames(really.cleaned.data) <- really.cleaned.data$Species
+
+really.cleaned.data <- really.cleaned.data[, -1]
+print(head(really.cleaned.data))
+
+
+really.cleaned.tree <- really.cleaned.result$phy
+
 ```
 
 Now things seem to be matched up pretty well (though it had to drop a few species).
 
 Looking at data for errors is more difficult since I'm not familiar with the species that are included. There are a few values in the ecology.1 row that are NA but I don't know what the row is looking at.
 
-```{r visualization}
-View(sqData)
+```{r visualization, eval=TRUE}
+#View(really.cleaned.data)
 VisualizeData <- function(phy, data) {
   plot.phylo(phy,cex = 0.1)
+  print(head(data))
 }
-VisualizeData(sqTree, sqData)
+VisualizeData(really.cleaned.tree, really.cleaned.data)
 ```
 The tree is hard to read because of how many branches there are. There may be polytomies, but at this size these potential spots could also be a very small edge between the nodes.I think that I will make the assumption that the data is usable.
 
 ##Analysis
-``` {r ancestral traits}
-cleaned.discrete.phyDat <- phangorn::phyDat(cleaned.discrete, type="USER", levels = c("NA", "1", "2", "3", "4", "5"))
-##anc.p <- phangorn::ancestral.pars(sqTree, cleaned.discrete.phyDat)
-##phangorn::plotAnc(sqTree, anc.p, 1)
+``` {r ancestral traits, eval=TRUE}
+#fingers <- data.frame(fingers=as.character(really.cleaned.data$fings))
+#rownames(fingers) <- rownames(really.cleaned.data)
+#print(head(fingers))
+for (i in sequence(ncol(really.cleaned.data))) {
+  really.cleaned.data[,i] <- as.character(really.cleaned.data[,i])
+}
+really.cleaned.matrix <- as.matrix(really.cleaned.data)
+rownames(really.cleaned.matrix) <- rownames(really.cleaned.data)
+colnames(really.cleaned.data) <- NULL
+cleaned.discrete.phyDat <- phangorn::phyDat(really.cleaned.matrix, type="USER", levels = as.character(c(0:5)))
+#rownames(cleaned.discrete.phyDat) <- rownames(really.cleaned.matrix)
+#print(class(cleaned.discrete.phyDat))
+```
+
+``` {r parsimony, eval=FALSE}
+anc.p <- phangorn::ancestral.pars(really.cleaned.tree, cleaned.discrete.phyDat)
+phangorn::plotAnc(really.cleaned.tree, anc.p, 1)
 ```
 
 I'm getting errors in the last line (subscript out of bounds?) and I'm not sure where they're coming from or how to fix them. Google says that I'm trying to add something too big to a matrix of a set size, but I'm not entirely sure where to start.
+
+``` {r likelihoods, eval=TRUE}
+anc.ml <- ancestral.pml(pml(really.cleaned.tree, cleaned.discrete.phyDat), type="ml")
+plotAnc(really.cleaned.tree, anc.ml, 1)
+```
+
+How does this differ from parsimony?
+
+Why does it differ from parsimony?
+
+What does uncertainty mean?
+
+Now, to the biological questions. For many of these, corHMM will be a useful package. Do the following analyses:
+
+How can you estimate transition rates between states? Do it.
+How could you examine if transition rates are equal?
+Think about the Lewis (2001) MKV model. Are your traits all variable? Will using this make sense for your data? Try using it. Do results change?
+How could you test order of state evolution?

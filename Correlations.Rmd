@@ -33,31 +33,32 @@ trait1<-primates$trait[,2]
 names(trait1)<-primates$trait[,1]
 primates$tree <- ape::multi2di(primates$tree)
 plotSimmap(make.simmap(primates$tree, trait1), pts=FALSE, fsize=0.8)
-rate.mat.er<-rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=2, model="ER")
+rate.mat.er<-corHMM:::rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=2, model="ER")
 print(rate.mat.er)
 ```
-
-Not sure why I'm getting this error, but R won't find a function called rate.mat.maker and nothing I try works. 
 
 ```{r matrix}
 pp.er<-corHMM(primates$tree,primates$trait[,c(1,2)],rate.cat=1,rate.mat=rate.mat.er,node.states="marginal")
 print(pp.er)
 ```
+What does this mean?
 
 ```{r results}
-rate.mat.ard<-rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=2, model="ARD")
+rate.mat.ard<-corHMM:::rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=2, model="ARD")
 print(rate.mat.ard)
 ```
-
+What does this mean?
 ```{r results 2}
 pp.ard<-corHMM(primates$tree,primates$trait[,c(1,2)],rate.cat=1,rate.mat=rate.mat.ard,node.states="marginal")
 print(pp.ard)
 ```
+What does this mean?
 
 ```{r multiple states}
-rate.mat.er.4state<-rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=4, model="ER")
+rate.mat.er.4state<-corHMM:::rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=4, model="ER")
 print(rate.mat.er.4state)
 ```
+Which model is better?
 
 ```{r traits}
 fourstate.trait<-rep(NA,Ntip(primates$tree))
@@ -79,28 +80,35 @@ fourstate.data<-data.frame(Genus_sp=primates$trait[,1], T1=fourstate.trait)
 
 print(rayDISC(primates$tree, fourstate.data, ntraits=1, model="ER", node.states="marginal"))
 print(rayDISC(primates$tree, fourstate.data, ntraits=1, rate.mat=rate.mat.er.4state, node.states="marginal", model="ARD"))
-rate.mat.ard.4state<-rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=4, model="ARD")
+rate.mat.ard.4state<-corHMM:::rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=1, nstates=4, model="ARD")
 print(rate.mat.ard.4state)
 ```
 
 ```{r GTR matrix}
 rate.mat.gtr.4state<-rate.mat.ard.4state
-rate.mat.gtr.4state<-rate.par.eq(rate.mat.gtr.4state, c(1,4))
-rate.mat.gtr.4state<-rate.par.eq(rate.mat.gtr.4state, c(2,6))
-rate.mat.gtr.4state<-rate.par.eq(rate.mat.gtr.4state, c(3,8))
-rate.mat.gtr.4state<-rate.par.eq(rate.mat.gtr.4state, c(4,6))
-rate.mat.gtr.4state<-rate.par.eq(rate.mat.gtr.4state, c(5,7))
-rate.mat.gtr.4state<-rate.par.eq(rate.mat.gtr.4state, c(6,7))
+rate.mat.gtr.4state<-corHMM:::rate.par.eq(rate.mat.gtr.4state, c(1,4))
+rate.mat.gtr.4state<-corHMM:::rate.par.eq(rate.mat.gtr.4state, c(2,6))
+rate.mat.gtr.4state<-corHMM:::rate.par.eq(rate.mat.gtr.4state, c(3,8))
+rate.mat.gtr.4state<-corHMM:::rate.par.eq(rate.mat.gtr.4state, c(4,6))
+rate.mat.gtr.4state<-corHMM:::rate.par.eq(rate.mat.gtr.4state, c(5,7))
+rate.mat.gtr.4state<-corHMM:::rate.par.eq(rate.mat.gtr.4state, c(6,7))
 print(rate.mat.gtr.4state)
 
 print(rayDISC(primates$tree, fourstate.data, ntraits=1, rate.mat= rate.mat.gtr.4state, node.states="marginal", model="ARD"))
 ```
 
 ```{r Pagel}
-print(rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=2, nstates=2, model="ARD"))
-rate.mat.pag94<-rate.par.drop(rate.mat.ard.4state, drop.par=c(3,5,8,10))
+print(corHMM:::rate.mat.maker(rate.cat=1, hrm=FALSE, ntraits=2, nstates=2, model="ARD"))
+rate.mat.pag94<-corHMM:::rate.par.drop(rate.mat.ard.4state, drop.par=c(3,5,8,10))
 print
 ```
+
+
+Construct a model to test if state 1 can never be lost
+
+Experiment with the effects of frequencies at the root.
+
+Create and use a model to see if transitions from 00 go to 11 only via 01.
 
 ``` {r route 1}
 
